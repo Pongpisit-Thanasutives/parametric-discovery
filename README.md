@@ -1,20 +1,21 @@
-# parametric-discovery
+# Parametric discovery using UBIC (work in progress)
+Using the uncertainty-penalized Bayesian information criterion (UBIC) originally proposed in [Adaptive Uncertainty-Penalized Model Selection for Data-Driven PDE Discovery](https://ieeexplore.ieee.org/document/10401233) to discover parametric PDEs.
 
-Code for discovery of parametric partial differential equations presented in;
+- Please first install our modified pysindy package archived at [this OneDrive link](https://chula-my.sharepoint.com/:u:/g/personal/pongpisit_t_alumni_chula_ac_th/EX7weU9tSe9BtbQjJXrGQG0Bxlj8d-nkEK6DZYsvLXbjhw) (Password: UBIC). The more updated version is avaiable at [this repository](https://github.com/Pongpisit-Thanasutives/pysindy).
+- Please visit [the Example directory](Examples/) to run experiments.
+- To use the L0BnB best-subset solver, please install [the package](https://github.com/Pongpisit-Thanasutives/l0bnb).
 
-Rusy, S., Alla, A., Brunton, B., and Kutz, J.N.
+# Citing UBIC
 
-"Data-driven identification of parametric partial differential equations."
+```
+@article{thanasutives2023adaptive,
+  author={Thanasutives, Pongpisit and Morita, Takashi and Numao, Masayuki and Fukui, Ken-ichi},
+  journal={IEEE Access},
+  title={Adaptive Uncertainty-Penalized Model Selection for Data-Driven PDE Discovery},
+  year={2024},
+  volume={12},
+  pages={13165-13182},
+  doi={10.1109/ACCESS.2024.3354819}
+}
+```
 
-
-Abstract:
-In this work we present a data-driven method for the discovery of parametric partial differential
-equations (PDEs), thus allowing one to disambiguate between the underlying evolution equations
-and their parametric dependencies. Group sparsity is used to ensure parsimonious representations
-of observed dynamics in the form of a parametric PDE, while also allowing the coefficients to have
-arbitrary time series, or spatial dependence. This work builds on previous methods for the identifica-
-tion of constant coefficient PDEs, expanding the field to include a new class of equations which until
-now have eluded machine learning based identification methods. We show that group sequentially
-thresholded ridge regression outperforms group LASSO in identifying the fewest terms in the PDE
-along with their parametric dependency. The method is demonstrated on four canonical models with
-and without the introduction of noise.

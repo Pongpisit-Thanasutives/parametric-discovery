@@ -6,6 +6,38 @@ from numpy.linalg import norm as Norm
 from numpy.linalg import solve as Solve
 from scipy.linalg import block_diag
 
+def spatial_temporal_group(Theta, Ut, domain_shape, dependent="temporal"):
+    n, m = domain_shape
+    assert n*m == Theta.shape[0], Ut.shape[0]
+    if dependent == "temporal":
+        Theta_grouped = [(Theta[j*n:(j+1)*n,:]).real for j in range(m)]
+        Ut_grouped = [(Ut[j*n:(j+1)*n]).real for j in range(m)]
+    elif dependent == "spatial":
+        Theta_grouped = [(Theta[n*np.arange(m)+j,:]).real for j in range(n)]
+        Ut_grouped = [(Ut[n*np.arange(m)+j]).real for j in range(n)]
+    else: return
+    return np.array(Theta_grouped), np.array(Ut_grouped)
+
+def normalize_groups(As, bs, normalize=2):
+    m = len(As)
+    n,D = As[0].shape
+
+    # get norm of each column
+    candidate_norms = np.zeros(D)
+    for i in range(D):
+        candidate_norms[i] = Norm(np.vstack([A[:,i] for A in As]), normalize)
+
+    norm_bs = [m*Norm(b, normalize) for b in bs]
+
+    normalized_As = As.copy()
+    normalized_bs = bs.copy()
+    # normalize
+    for i in range(m):
+        normalized_As[i] = normalized_As[i].dot(np.diag(candidate_norms**-1))
+        normalized_bs[i] = normalized_bs[i]/norm_bs[i]
+
+    return normalized_As, normalized_bs
+
 """
 A few functions used in parametric PDE-FIND
 
@@ -428,7 +460,7 @@ def GroupLassoADMM(As, bs, lam, groups, rho, alpha, maxiter=1000, abstol=1e-4, r
     nz_coords = np.where(np.sum(abs(z), axis = 1) != 0)[0]
     if len(nz_coords) != 0: 
         for j in range(m):
-            z[nz_coords,j] = np.linalg.lstsq(As[j][:, nz_coords], bs[j])[0][:,0]
+            z[nz_coords,j] = np.linalg.lstsq(As[j][:, nz_coords], bs[j], rcond=None)[0][:,0]
     
     return z, history
 
@@ -448,7 +480,7 @@ def TrainGroupLasso(As, bs, groups, num_lambdas = 50, normalize=2):
         # get norm of each column
         candidate_norms = np.zeros(D)
         for i in range(D):
-            candidate_norms[i] = Norm(np.vstack(A[:,i] for A in As), normalize)
+            candidate_norms[i] = Norm(np.vstack([A[:,i] for A in As]), normalize)
 
         norm_bs = [m*Norm(b, normalize) for b in bs]
 
@@ -517,7 +549,7 @@ def ObjectiveGLASSO_block(As, bs, Ts, lam, groups, x):
 
 def Ridge(A,b,lam):
     if lam != 0: return np.linalg.solve(A.T.dot(A)+lam*np.eye(A.shape[1]), A.T.dot(b))
-    else: return np.linalg.lstsq(A, b)[0]
+    else: return np.linalg.lstsq(A, b, rcond=None)[0]
     
 def SGTRidge(Xs, ys, tol, lam = 10**-5, maxit = 5, penalize_noise = False, verbose = False):
     """
@@ -563,7 +595,7 @@ def SGTRidge(Xs, ys, tol, lam = 10**-5, maxit = 5, penalize_noise = False, verbo
                 W[biginds,i] = Ridge(Xs[i][:, biginds], ys[i], lam).reshape(len(biginds))
         else: 
             for i in range(m):
-                W[biginds,i] = np.linalg.lstsq(Xs[i][:, biginds],ys[i])[0].reshape(len(biginds))
+                W[biginds,i] = np.linalg.lstsq(Xs[i][:, biginds],ys[i], rcond=None)[0].reshape(len(biginds))
                 
     return W
 
@@ -593,7 +625,7 @@ def TrainSGTRidge(As, bs, num_tols = 50, lam = 1e-5, normalize = 2):
         # get norm of each column
         candidate_norms = np.zeros(D)
         for i in range(D):
-            candidate_norms[i] = Norm(np.vstack(A[:,i] for A in As), normalize)
+            candidate_norms[i] = Norm(np.vstack([A[:,i] for A in As]), normalize)
 
         norm_bs = [m*Norm(b, normalize) for b in bs]
 
@@ -628,15 +660,53 @@ def TrainSGTRidge(As, bs, num_tols = 50, lam = 1e-5, normalize = 2):
             
     return X,Tol,Losses
 
+def TrainUSGTRidge(As, bs, num_tols = 50, lam = 1e-5, normalize = 2):
+    """
+    Searches over values of tol to find optimal performance according to PDE_FIND_Loss.
+    """
 
+    np.random.seed(0) # for consistancy
 
+    m = len(As)
+    n,D = As[0].shape
+    
+    # Normalize
+    if normalize != 0:
 
+        # get norm of each column
+        candidate_norms = np.zeros(D)
+        for i in range(D):
+            candidate_norms[i] = Norm(np.vstack([A[:,i] for A in As]), normalize)
 
+        norm_bs = [m*Norm(b, normalize) for b in bs]
 
+        # normalize 
+        for i in range(m):
+            As[i] = As[i].dot(np.diag(candidate_norms**-1))
+            bs[i] = bs[i]/norm_bs[i]
+    
+    # Get array of tols to check
+    x_ridge = np.hstack([Ridge(A,b,lam) for (A,b) in zip(As, bs)])
+    max_tol = np.max([Norm(x_ridge[j,:]) for j in range(x_ridge.shape[0])])
+    min_tol = np.min([Norm(x_ridge[j,:]) for j in range(x_ridge.shape[0])])
+    Tol = [0]+[np.exp(alpha) for alpha in np.linspace(np.log(min_tol), np.log(max_tol), num_tols)][:-1]
 
+    # Test each value of tol to find the best
+    X = []
+    Losses = []
 
+    for tol in Tol:
+        x = SGTRidge(As,bs,tol)
+        X.append(x)
+        Losses.append(PDE_FIND_Loss(As, bs, x))
 
-
-
-
-
+    if normalize != 0:
+        for x in X:
+            for i in range(D):
+                for j in range(m):
+                    x[i,j] = x[i,j]/candidate_norms[i]*norm_bs[j]
+        for i in range(m):
+            As[i] = As[i].dot(np.diag(candidate_norms))
+            bs[i] = bs[i]*norm_bs[i]
+            
+    return X,Tol,Losses
