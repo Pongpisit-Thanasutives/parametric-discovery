@@ -16,6 +16,12 @@ def rss2bic(rss, nparams, nobs, epsilon=1e-5):
     # return -2*llf + np.log(nobs)*nparams
     return nobs*np.log(2*np.pi*rss/nobs+epsilon) + np.log(nobs)*nparams
 
+# whenever u compute Ut_grouped - Ut_grouped_est then u can also compute transform_func(Ut_grouped) - transform_func(Ut_grouped_est)
+def rss_group(Ut_grouped_est, Ut_grouped, transform_func=lambda _: _):
+    Ut_grouped_diff = transform_func(Ut_grouped) - transform_func(Ut_grouped_est)
+    rss = [np.linalg.norm(Ut_grouped_diff[j])**2 for j in range(len(Ut_grouped_diff))]
+    return np.sum(rss)
+
 def BIC_Loss(As,bs,x,epsilon=1e-5):
     # D: Number of candidates | m: either len(t) or len(x) (temporal or spatial group)
     D,m = x.shape
@@ -33,6 +39,16 @@ def BIC_Loss(As,bs,x,epsilon=1e-5):
     # -2*llf + np.log(N)*k # AIC: -2*llf + 2*k
     # return -2*llf + np.log(N)*k
     return N*np.log(2*np.pi*rss/N+epsilon) + np.log(N)*k
+
+def smooth_data(a, WSZ):
+    # a: NumPy 1-D array containing the data to be smoothed
+    # WSZ: smoothing window size needs, which must be odd number,
+    # as in the original MATLAB implementation
+    out0 = np.convolve(a, np.ones(WSZ,dtype=int), 'valid')/WSZ    
+    r = np.arange(1, WSZ-1, 2)
+    start = np.cumsum(a[:WSZ-1])[::2]/r
+    stop = (np.cumsum(a[:-WSZ:-1])[::2]/r)[::-1]
+    return np.concatenate((start , out0, stop))
 
 def remove_f(uu, percent):
     if percent <= 0: return uu

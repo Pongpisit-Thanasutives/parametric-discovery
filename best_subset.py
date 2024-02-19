@@ -401,7 +401,11 @@ def get_order_degree(text, verbose=False, accumulate=True):
 def prediction_group(Theta_grouped, xi):
     # old code as a reference in case some errors emerge
     # return np.hstack([Theta_grouped[j].dot(xi[j]) for j in range(len(Theta_grouped))]).reshape(-1, 1)
+    # suggest change: np.array([Theta_grouped[i].dot(xi[:, i:i+1]) for i in range(len(Theta_grouped))])
     return np.vstack([Theta_grouped[j].dot(xi[:, j]) for j in range(len(Theta_grouped))])
+
+def estimate_Ut_grouped_est(Theta_grouped, xi):
+    return np.array([Theta_grouped[i].dot(xi[:, i:i+1]) for i in range(len(Theta_grouped))])
 
 def spatial_temporal_group(Theta, Ut, domain_shape, dependent="temporal"):
     # print("INPUT: domain_shape = len(x), len(t)")
