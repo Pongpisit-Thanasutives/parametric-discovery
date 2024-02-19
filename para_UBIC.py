@@ -58,8 +58,11 @@ def remove_f(uu, percent):
     return uu*mask
 
 def power_spectral_density(*args, **kwargs):
-    method = kwargs["method"]
-    del kwargs["method"]
+    if "method" in kwargs:
+        method = kwargs["method"]
+        del kwargs["method"]
+    else:
+        method = 'periodogram'
     if method.lower() == 'welch':
         return welch(*args, **kwargs)[1]
     return periodogram(*args, **kwargs)[1]
