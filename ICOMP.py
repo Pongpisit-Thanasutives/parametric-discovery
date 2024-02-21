@@ -30,7 +30,7 @@ class KRR(object):
         self.alpha = alpha
         self.nobs = None
         self.dual_coef_ = None
-        self.estimated_y_train = None
+        self.train_residual = None
         self.A = None
         self.kic_1 = self.kic_2 = None
         
@@ -38,16 +38,16 @@ class KRR(object):
         self.nobs = len(y)
         self.A = K + self.alpha * np.eye(len(K))
         self.dual_coef_ = scipy.linalg.solve(self.A, y, assume_a='sym')
-        self.estimated_y_train = self.predict(K)
-        self.kic(K, self.dual_coef_, self.estimated_y_train, self.A)
+        self.train_residual = y - self.predict(K)
+        self.kic(K, self.dual_coef_, self.train_residual, self.A)
         return self
         
     def predict(self, K):
         return np.dot(K, self.dual_coef_)
     
-    def kic(self, K, theta, y_est, A):
+    def kic(self, K, theta, y_res, A):
         nobs2 = self.nobs/2
-        var = np.dot(y_est, y_est)
+        var = np.dot(y_res, y_res)
         tKt = theta.dot(K).dot(theta)
         ss = (var + krr.alpha*tKt)/self.nobs
         A = np.linalg.inv(A)
