@@ -32,7 +32,7 @@ class KRR(object):
         self.A = None
         self.dual_coef_ = None
         self.train_residual = None
-        self.kic_1 = self.kic_2 = None
+        self.pll = self.kic_1 = self.kic_2 = None
         
     # K = pairwise_kernels(X, metric='rbf')
     def fit(self, K, y):
@@ -53,7 +53,7 @@ class KRR(object):
         ss = (var + krr.alpha*tKt)/self.nobs
         A = np.linalg.inv(A)
         sigma_theta = K.dot(A.dot(A))
-        pll = -nobs2*np.log(2*np.pi*ss)-(var+krr.alpha*tKt)/(2*ss)
-        self.kic_1 = -2*pll+ss*np.trace(sigma_theta)
-        self.kic_2 = -2*pll+ss*np.trace(sigma_theta.dot(sigma_theta))
+        self.pll = -nobs2*np.log(2*np.pi*ss)-(var+krr.alpha*tKt)/(2*ss)
+        self.kic_1 = -2*self.pll+ss*np.trace(sigma_theta)
+        self.kic_2 = -2*self.pll+ss*np.trace(sigma_theta.dot(sigma_theta))
 
