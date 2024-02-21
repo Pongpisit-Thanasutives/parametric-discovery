@@ -29,11 +29,12 @@ class KRR(object):
     def __init__(self, alpha=1.0):
         self.alpha = alpha
         self.nobs = None
+        self.A = None
         self.dual_coef_ = None
         self.train_residual = None
-        self.A = None
         self.kic_1 = self.kic_2 = None
         
+    # K = pairwise_kernels(X, metric='rbf')
     def fit(self, K, y):
         self.nobs = len(y)
         self.A = K + self.alpha * np.eye(len(K))
