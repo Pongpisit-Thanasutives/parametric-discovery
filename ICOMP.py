@@ -2,20 +2,23 @@ import numpy as np
 import statsmodels.api as sm
 from scipy.stats import gmean
 from scipy.linalg import solve
-from sklearn.kernel_ridge import KernelRidge
-from sklearn.metrics.pairwise import pairwise_kernels
+# from sklearn.kernel_ridge import KernelRidge
+# from sklearn.metrics.pairwise import pairwise_kernels
 
 def icomp_penalty(cov, method='approx'):
     # used with -2*pll+2*icomp
     var = np.diag(cov)
-    if method == 'exact':
-        icomp = (np.log(var).sum()-np.log(np.linalg.det(cov)))/2
+    if method == 'exact' or len(var) == 1:
+        if len(var) > 1:
+            dv = np.linalg.det(cov)
+        else:
+            dv = float(var)
+        icomp = (np.log(var).sum()-np.log(dv))/2
     else:
         ev = np.linalg.eigvals(cov)
-        # gm = ((ev.prod())**(1/len(ev))).real
         gm = gmean(ev).real
         am = np.mean(ev).real
-        icomp = len(var)*np.log(am/gm)/2
+        icomp = len(var)*np.log(np.divide(am, gm))/2
     return icomp
 
 def OLS_icomp(X, y, X_cov=None):
@@ -52,6 +55,7 @@ class KRR(object):
         var = np.dot(y_res, y_res)
         tKt = theta.dot(K).dot(theta)
         ss = (var + self.alpha*tKt)/self.nobs
+        # A = np.linalg.pinv(A, hermitian=True) # pinv as an option
         A = np.linalg.inv(A)
         sigma_theta = K.dot(A.dot(A))
         self.pll = -nobs2*np.log(2*np.pi*ss)-(var+self.alpha*tKt)/(2*ss)
