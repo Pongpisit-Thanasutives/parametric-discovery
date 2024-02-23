@@ -4,6 +4,8 @@ from numpy.linalg import norm as Norm
 from scipy.signal import periodogram, welch
 from sklearn.linear_model import BayesianRidge
 from derivative import dxdt as ddd
+try: from kneed import KneeLocator
+except ModuleNotFoundError: pass
 
 def ssr2llf(ssr, nobs, epsilon=1e-5):
     nobs2 = nobs / 2.0
@@ -130,3 +132,7 @@ def construct_fft_group(Theta_grouped, Ut_grouped, fft_percent=90):
     fft_Ut_grouped = np.expand_dims(fft_Ut_grouped, -1)
     return fft_Theta_grouped, fft_Ut_grouped
 
+def find_corner(complexities, ics, S=1.0):
+    assert len(complexities) == len(ics)
+    kn = KneeLocator(complexities, ics, S=S, curve='convex', direction='decreasing')
+    return kn.knee
