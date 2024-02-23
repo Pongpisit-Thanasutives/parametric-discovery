@@ -55,8 +55,8 @@ class KRR(object):
         var = np.dot(y_res, y_res)
         tKt = theta.dot(K).dot(theta)
         ss = (var + self.alpha*tKt)/self.nobs
-        # A = np.linalg.pinv(A, hermitian=True) # pinv as an option
-        A = np.linalg.inv(A)
+        # A = np.linalg.inv(A)
+        A = np.linalg.pinv(A, hermitian=True) # pinv as an option
         sigma_theta = K.dot(A.dot(A))
         self.pll = -nobs2*np.log(2*np.pi*ss)-(var+self.alpha*tKt)/(2*ss)
         self.kic_1 = -2*self.pll+ss*np.trace(sigma_theta)
