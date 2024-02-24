@@ -6,14 +6,13 @@ from scipy.linalg import solve
 # from sklearn.metrics.pairwise import pairwise_kernels
 
 def icomp_penalty(cov, method='approx'):
-    # used with -2*pll+2*icomp
+    # Notes: used with -2*pll+2*icomp, cov is 2d, approx is more like an upper bound
+    assert len(cov.shape) == 2
     var = np.diag(cov)
-    if method == 'exact' or len(var) == 1:
-        if len(var) > 1:
-            dv = np.linalg.det(cov)
-        else:
-            dv = float(var)
-        icomp = (np.log(var).sum()-np.log(dv))/2
+    if len(var) <= 1:
+        return 0
+    if method == 'exact':
+        icomp = (np.log(var).sum()-np.log(np.linalg.det(cov)))/2
     else:
         ev = np.linalg.eigvals(cov)
         gm = gmean(ev).real
