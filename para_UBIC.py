@@ -6,6 +6,8 @@ from sklearn.linear_model import BayesianRidge
 from derivative import dxdt as ddd
 try: from kneed import KneeLocator
 except ModuleNotFoundError: pass
+try: from kneebow.rotor import Rotor
+except ModuleNotFoundError: pass
 
 def ssr2llf(ssr, nobs, epsilon=1e-5):
     nobs2 = nobs / 2.0
@@ -137,3 +139,10 @@ def find_corner(complexities, ics, S=1.0, interp_method='interp1d', polynomial_d
     assert len(complexities) == len(ics)
     kn = KneeLocator(complexities, ics, S=S, curve='convex', direction='decreasing', interp_method=interp_method, polynomial_degree=polynomial_degree)
     return kn.knee
+
+def rotor_knee(complexities, ics):
+    assert len(complexities) == len(ics)
+    rotor = Rotor()
+    rotor.fit_rotate(np.array([c, b_bics[i] for i, c in enumerate(complexities)]))
+    return complexities[rotor.get_elbow_index()]
+
