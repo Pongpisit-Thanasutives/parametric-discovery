@@ -132,7 +132,8 @@ def construct_fft_group(Theta_grouped, Ut_grouped, fft_percent=90):
     fft_Ut_grouped = np.expand_dims(fft_Ut_grouped, -1)
     return fft_Theta_grouped, fft_Ut_grouped
 
-def find_corner(complexities, ics, S=1.0):
+def find_corner(complexities, ics, S=1.0, interp_method='interp1d', polynomial_degree=3):
+    # interp_method='polynomial' is an option.
     assert len(complexities) == len(ics)
-    kn = KneeLocator(complexities, ics, S=S, curve='convex', direction='decreasing')
+    kn = KneeLocator(complexities, ics, S=S, curve='convex', direction='decreasing', interp_method=interp_method, polynomial_degree=polynomial_degree)
     return kn.knee
