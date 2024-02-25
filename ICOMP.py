@@ -4,6 +4,7 @@ from scipy.stats import gmean
 from scipy.linalg import solve
 # from sklearn.kernel_ridge import KernelRidge
 # from sklearn.metrics.pairwise import pairwise_kernels
+# Following https://arxiv.org/pdf/1408.5810.pdf
 
 def icomp_penalty(cov, method='approx'):
     # Notes: used with -2*pll+2*icomp, cov is 2d, approx is more like an upper bound
