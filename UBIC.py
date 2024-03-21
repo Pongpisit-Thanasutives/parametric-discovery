@@ -51,7 +51,7 @@ def fit_blr(Phi, yy, prior_mean=None, ridge_lambda=0.0):
     posterior_mean = posterior_cov@(prior_cov_inv@prior_mean + (Phi.T@yy)/variance_y)
     return posterior_mean, posterior_cov
 
-def baye_uncertainties(best_subsets, dataset, u_type='var', take_sqrt=True, ridge_lambda=0):
+def baye_uncertainties(best_subsets, dataset, u_type='var', take_sqrt=True, ridge_lambda=0, unbiased=False):
     # if you want u_type='std', then call u_type='var' and take_sqrt=True
     XX, yy = dataset
     assert u_type == 'var' or 'cv' in u_type
@@ -68,6 +68,7 @@ def baye_uncertainties(best_subsets, dataset, u_type='var', take_sqrt=True, ridg
         err = yy-Phi@w
         # By MLE, we have variance_y written as follows:
         variance_y = np.mean(err**2)
+        if unbiased: variance_y = variance_y*len(err)/(len(err)-com)
         # w = w.reshape(-1, 1) should give the same result
         w = w[np.abs(w)>0].reshape((com, 1))
 
