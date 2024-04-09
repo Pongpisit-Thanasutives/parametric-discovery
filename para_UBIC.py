@@ -143,6 +143,6 @@ def find_corner(complexities, ics, S=1.0, interp_method='interp1d', polynomial_d
 def rotor_knee(complexities, ics):
     assert len(complexities) == len(ics)
     rotor = Rotor()
-    rotor.fit_rotate(np.array([c, b_bics[i] for i, c in enumerate(complexities)]))
+    rotor.fit_rotate(np.array([(c, b_bics[i]) for i, c in enumerate(complexities)]))
     return complexities[rotor.get_elbow_index()]
 
