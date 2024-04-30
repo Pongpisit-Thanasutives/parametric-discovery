@@ -3,7 +3,7 @@ import numpy as np
 from sklearn.base import BaseEstimator
 # Code ref: https://github.com/csinva/mdl-complexity (Dwivedi et al. Revisiting minimum description length complexity in overparameterized models)
 
-def prac_mdl_comp(X_train, y_train, variance=1):
+def prac_mdl_comp(X_train, y_train, variance=1, max_lambda=np.inf):
     '''Calculate prac-mdl-comp for this dataset
     '''
     eigenvals, eigenvecs = np.linalg.eig(X_train.T @ X_train)
@@ -19,7 +19,7 @@ def prac_mdl_comp(X_train, y_train, variance=1):
         eigensum = 0.5 * np.sum(np.log((eigenvals + l) / l))
         return (mse_norm + theta_norm + eigensum) / y_train.size
 
-    opt_solved = scipy.optimize.minimize(prac_mdl_comp_objective, bounds=((0.0, np.inf),), x0=1e-10)
+    opt_solved = scipy.optimize.minimize(prac_mdl_comp_objective, bounds=((0.0, max_lambda),), x0=1e-10)
     prac_mdl = opt_solved.fun
     lambda_opt = opt_solved.x
     thetahat = calc_thetahat(lambda_opt)
@@ -36,9 +36,10 @@ def redundancy(X_train, l):
     return eigensum
 
 class RidgeMDLCOMP(BaseEstimator):
-    def __init__(self, variance=None):
+    def __init__(self, variance=None, max_lambda=np.inf):
         super().__init__()
         self.variance = variance
+        self.max_lambda = max_lambda
         self.coef_ = None
         self.lambda_opt = None
         self.prac_mdl = None
@@ -46,7 +47,7 @@ class RidgeMDLCOMP(BaseEstimator):
     def fit(self, X: np.ndarray, y: np.ndarray):
         if self.variance is None:
             self.variance = np.linalg.lstsq(X, y, rcond=None)[1]/(len(y)-X.shape[-1])
-        stats = prac_mdl_comp(X, y, self.variance)
+        stats = prac_mdl_comp(X, y, self.variance, max_lambda=self.max_lambda)
         self.coef_ = stats['thetahat']
         self.lambda_opt = stats['lambda_opt']
         self.prac_mdl = stats['prac_mdl']
