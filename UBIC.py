@@ -27,6 +27,7 @@ def log_like_value(prediction, ground):
 def BIC_AIC(prediction, ground, nparams, reg_func=lambda x:x):
     nparams = reg_func(nparams)
     llf = log_like_value(prediction, ground)
+    # 2*nparams+(2*nparams**2+2*nparams)/(ground.shape[0]-nparams-1)
     return -2*llf + np.log(ground.shape[0])*nparams, -2*llf + 2*nparams
 
 def fit_brr():
