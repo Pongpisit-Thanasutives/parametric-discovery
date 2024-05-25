@@ -447,7 +447,7 @@ def group_normalize(AAs, bbs, normalize=2):
     candidate_norms = np.zeros(D)
     for i in range(D):
         candidate_norms[i] = np.linalg.norm(np.vstack([A[:,i] for A in As]), normalize)
-    norm_bs = [m*Norm(b, normalize) for b in bs]
+    norm_bs = [m*np.linalg.norm(b, normalize) for b in bs]
     # normalize
     for i in range(m):
         As[i] = As[i].dot(np.diag(candidate_norms**-1))
@@ -461,12 +461,22 @@ def fit_grouped_data(reg_model, grouped_data, considered_indices=None):
         return np.hstack([reg_model.fit(Theta_grouped[j][:, considered_indices], Ut_grouped[j].ravel()).coef_.reshape(-1, 1) for j in range(n_chunks)])
     return np.hstack([reg_model.fit(Theta_grouped[j], Ut_grouped[j].ravel()).coef_.reshape(-1, 1) for j in range(n_chunks)])
 
-def linear_fit_grouped_data(grouped_data, considered_indices=None):
+def linear_fit_grouped_data(grouped_data, considered_indices=None, lam=0):
     Theta_grouped, Ut_grouped = grouped_data
     n_chunks = len(Ut_grouped)
     if considered_indices is not None:
-        return np.hstack([np.linalg.lstsq(Theta_grouped[j][:, considered_indices], Ut_grouped[j], rcond=None)[0] for j in range(n_chunks)])
-    return np.hstack([np.linalg.lstsq(Theta_grouped[j], Ut_grouped[j], rcond=None)[0] for j in range(n_chunks)])
+        if lam == 0:
+            return np.hstack([np.linalg.lstsq(Theta_grouped[j][:, considered_indices], Ut_grouped[j], rcond=None)[0] for j in range(n_chunks)])
+        else:
+            lam = abs(lam)
+            solve_ridge = lambda X, y, _ : np.linalg.solve(X.T.dot(X) + _*np.eye(X.shape[1]), X.T.dot(y))
+            return np.hstack([solve_ridge(Theta_grouped[j][:, considered_indices], Ut_grouped[j], lam) for j in range(n_chunks)])
+    if lam == 0:
+        return np.hstack([np.linalg.lstsq(Theta_grouped[j], Ut_grouped[j], rcond=None)[0] for j in range(n_chunks)])
+    else:
+        lam = abs(lam)
+        solve_ridge = lambda X, y, _ : np.linalg.solve(X.T.dot(X) + _*np.eye(X.shape[1]), X.T.dot(y))
+        return np.hstack([solve_ridge(Theta_grouped[j][:, considered_indices], Ut_grouped[j], lam) for j in range(n_chunks)])
 
 def mse_grouped_data(w, grouped_data, considered_indices=None):
     Theta_grouped, Ut_grouped = grouped_data

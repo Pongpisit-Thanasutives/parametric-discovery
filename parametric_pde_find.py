@@ -658,7 +658,7 @@ def TrainSGTRidge(As, bs, num_tols = 50, lam = 1e-5, normalize = 2):
             As[i] = As[i].dot(np.diag(candidate_norms))
             bs[i] = bs[i]*norm_bs[i]
             
-    return X,Tol,Losses
+    return np.array(X),np.array(Tol),np.array(Losses)
 
 def TrainUSGTRidge(As, bs, num_tols = 50, lam = 1e-5, normalize = 2):
     """
