@@ -112,3 +112,19 @@
 2024-06-01 21:45:56,106 [INFO] --------------------------------------------
 2024-06-01 21:45:56,108 [INFO] 
 2024-06-01 21:45:56,110 [INFO] Academic license - for non-commercial use only - expires 2024-06-04
+2024-06-02 13:19:17,635 [INFO] Set parameter Username
+2024-06-02 13:19:17,639 [INFO] 
+2024-06-02 13:19:17,640 [INFO] --------------------------------------------
+2024-06-02 13:19:17,641 [INFO] Warning: your license will expire in 2 days
+2024-06-02 13:19:17,642 [INFO] --------------------------------------------
+2024-06-02 13:19:17,643 [INFO] 
+2024-06-02 13:19:17,645 [INFO] Academic license - for non-commercial use only - expires 2024-06-04
+2024-06-02 14:05:07,060 [INFO] Set parameter Username
+2024-06-02 14:05:07,062 [INFO] 
+2024-06-02 14:05:07,063 [INFO] --------------------------------------------
+2024-06-02 14:05:07,065 [INFO] Warning: your license will expire in 2 days
+2024-06-02 14:05:07,066 [INFO] --------------------------------------------
+2024-06-02 14:05:07,067 [INFO] 
+2024-06-02 14:05:07,069 [INFO] Academic license - for non-commercial use only - expires 2024-06-04
+2024-06-02 15:31:28,889 [ERROR] Task was destroyed but it is pending!
+task: <Task pending name='Task-2' coro=<Kernel.poll_control_queue() running at /Users/pongpisit/anaconda3/envs/pysindy_latest/lib/python3.10/site-packages/ipykernel/kernelbase.py:309> wait_for=<Future pending cb=[Task.task_wakeup()]> cb=[_chain_future.<locals>._call_set_state() at /Users/pongpisit/anaconda3/envs/pysindy_latest/lib/python3.10/asyncio/futures.py:392]>
