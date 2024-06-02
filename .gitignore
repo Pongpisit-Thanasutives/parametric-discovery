@@ -1,4 +1,7 @@
 __pycache__
 .ipynb_checkpoints/
 debug.log
+Causal_Discovery.ipynb
 Parametric_Burgers-PLOT.ipynb
+Spatial_Advection_Diffusion_WeakLib_KRR-PLOT.ipynb
+
