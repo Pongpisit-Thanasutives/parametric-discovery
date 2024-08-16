@@ -16,5 +16,15 @@ Using the uncertainty-penalized Bayesian information criterion (UBIC) originally
   pages={13165-13182},
   doi={10.1109/ACCESS.2024.3354819}
 }
+
+@misc{thanasutives2024adaptation,
+  title={Adaptation of uncertainty-penalized Bayesian information criterion for parametric partial differential equation discovery}, 
+  author={Thanasutives, Pongpisit and Fukui, Ken-ichi},
+  year={2024},
+  eprint={2408.08106},
+  archivePrefix={arXiv},
+  primaryClass={cs.LG},
+  url={https://arxiv.org/abs/2408.08106}, 
+}
 ```
 
