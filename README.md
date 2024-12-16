@@ -34,7 +34,7 @@ The three major files for reproducing the results in [arXiv:2408.08106](https://
 }
 
 @inproceedings{thanasutives2024uncertainty,
-  title={{Uncertainty-Penalized Bayesian Information Criterion for Parametric Partial Differential Equation Discovery}},
+  title={Uncertainty-Penalized Bayesian Information Criterion for Parametric Partial Differential Equation Discovery},
   author={Thanasutives, Pongpisit and Fukui, Ken-ichi},
   booktitle={Machine Learning and the Physical Sciences Workshop @ NeurIPS 2024},
   year={2024},
