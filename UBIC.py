@@ -30,9 +30,6 @@ def BIC_AIC(prediction, ground, nparams, reg_func=lambda x:x):
     # 2*nparams+(2*nparams**2+2*nparams)/(ground.shape[0]-nparams-1)
     return -2*llf + np.log(ground.shape[0])*nparams, -2*llf + 2*nparams
 
-def fit_brr():
-    pass
-
 # Bayesian linear regression
 def fit_blr(Phi, yy, prior_mean=None, ridge_lambda=0.0):
     com = Phi.shape[-1]
