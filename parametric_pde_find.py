@@ -464,7 +464,7 @@ def GroupLassoADMM(As, bs, lam, groups, rho, alpha, maxiter=1000, abstol=1e-4, r
     
     return z, history
 
-def TrainGroupLasso(As, bs, groups, num_lambdas = 50, normalize=2):
+def TrainGroupLasso(As, bs, groups, num_lambdas = 50, normalize=2, epsilon = 1e-5):
     """
     Searches over values of lambda to find optimal performance using PDE_FIND_Loss.
     """
@@ -509,7 +509,7 @@ def TrainGroupLasso(As, bs, groups, num_lambdas = 50, normalize=2):
     for lam in Lam:
         x,history = GroupLassoADMM(As,bs,lam,groups,rho,alpha)
         X.append(x.reshape(D,m, order = 'F'))
-        Losses.append(PDE_FIND_Loss(As,bs,x))
+        Losses.append(PDE_FIND_Loss(As,bs,x,epsilon=epsilon))
         Histories.append(history)
 
     if normalize != 0:
@@ -551,7 +551,7 @@ def Ridge(A,b,lam):
     if lam != 0: return np.linalg.solve(A.T.dot(A)+lam*np.eye(A.shape[1]), A.T.dot(b))
     else: return np.linalg.lstsq(A, b, rcond=None)[0]
     
-def SGTRidge(Xs, ys, tol, lam = 10**-5, maxit = 5, penalize_noise = False, verbose = False):
+def SGTRidge(Xs, ys, tol, lam = 10**-5, maxit = 5, verbose = False):
     """
     Sequential Threshold Group Ridge
     """
@@ -609,7 +609,7 @@ def PDE_FIND_Loss(As,bs,x,epsilon=1e-5):
 
     return N*np.log(rss/N+epsilon) + 2*k + (2*k**2+2*k)/(N-k-1)
 
-def TrainSGTRidge(As, bs, num_tols = 50, lam = 1e-5, normalize = 2):
+def TrainSGTRidge(As, bs, num_tols = 50, lam = 1e-5, normalize = 2, epsilon = 1e-5):
     """
     Searches over values of tol to find optimal performance according to PDE_FIND_Loss.
     """
@@ -647,7 +647,7 @@ def TrainSGTRidge(As, bs, num_tols = 50, lam = 1e-5, normalize = 2):
     for tol in Tol:
         x = SGTRidge(As,bs,tol)
         X.append(x)
-        Losses.append(PDE_FIND_Loss(As, bs, x))
+        Losses.append(PDE_FIND_Loss(As, bs, x, epsilon = epsilon))
 
     if normalize != 0:
         for x in X:
@@ -660,7 +660,7 @@ def TrainSGTRidge(As, bs, num_tols = 50, lam = 1e-5, normalize = 2):
             
     return np.array(X),np.array(Tol),np.array(Losses)
 
-def TrainUSGTRidge(As, bs, num_tols = 50, lam = 1e-5, normalize = 2):
+def TrainUSGTRidge(As, bs, num_tols = 50, lam = 1e-5, normalize = 2, epsilon = 1e-5):
     """
     Searches over values of tol to find optimal performance according to PDE_FIND_Loss.
     """
@@ -698,7 +698,7 @@ def TrainUSGTRidge(As, bs, num_tols = 50, lam = 1e-5, normalize = 2):
     for tol in Tol:
         x = SGTRidge(As,bs,tol)
         X.append(x)
-        Losses.append(PDE_FIND_Loss(As, bs, x))
+        Losses.append(PDE_FIND_Loss(As, bs, x, epsilon=epsilon))
 
     if normalize != 0:
         for x in X:

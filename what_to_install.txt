@@ -1,0 +1,7 @@
+OKRidge
+funcy
+PyNumDiff
+cvxpy
+findiff
+kneed
+

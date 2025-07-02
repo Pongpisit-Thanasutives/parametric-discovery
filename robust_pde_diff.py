@@ -593,7 +593,7 @@ def RobustPCA(U, lam_2 = 1e-3):
     return Z, E
 
 # This func receives Theta_grouped and u_t in the matrix form (careful with the dimensions, be consistent)
-def DLrSR(R, Ut, lam_1 = 1e-5, lam_3 = 0.1, lam_4 = 1e-5, d_tol = 30):
+def DLrSR(R, Ut, lam_1 = 1e-5, lam_3 = 0.1, lam_4 = 1e-5, num_tols = 50, by = ''):
     nx, nt    = Ut.shape[0], Ut.shape[1]
     # for robust low-rank PCA
     Y2        = Ut
@@ -604,7 +604,7 @@ def DLrSR(R, Ut, lam_1 = 1e-5, lam_3 = 0.1, lam_4 = 1e-5, d_tol = 30):
     X         = np.zeros(Y2.shape)
     E2        = np.zeros(Y2.shape)
     Rxmatrix  = np.zeros(Y2.shape)
-    # x         = np.zeros((R.shape[1],1))
+    #x         = np.zeros((R.shape[1],1))
     dnorm     = np.linalg.norm(Y2, 'fro')
 
     eta2       = 1.25 / norm_two
@@ -612,7 +612,7 @@ def DLrSR(R, Ut, lam_1 = 1e-5, lam_3 = 0.1, lam_4 = 1e-5, d_tol = 30):
     sv        = 30.
     n         = Y2.shape[1]
     iter_print = 50
-    tol       = 1e-6
+    tol       = 1e-5
     maxIter   = 1e4
     iter      = 0
     err       = 10**5
@@ -633,12 +633,15 @@ def DLrSR(R, Ut, lam_1 = 1e-5, lam_3 = 0.1, lam_4 = 1e-5, d_tol = 30):
            tempX = (eta2/(lam_4+eta2))*(Ut - E2 + (1 / eta2) * Y2) + (lam_4/(lam_4+eta2))*Rxmatrix
            X, nc_norm = pcasvd_threshold(tempX, eta2+lam_4, n, sv)
            vectorX    = np.reshape(X,(nx*nt,1))
-           X_grouped = [vectorX[j*nx:(j+1)*nx] for j in range(nt)]
-           Xi,Tol,Losses =  TrainSGTRidge(R,X_grouped, lam=lam_1, num_tols=d_tol)
+           if by == 'location':
+               X_grouped = [vectorX[nx*np.arange(nt)+j] for j in range(nx)]
+           else:
+               X_grouped = [vectorX[j*nx:(j+1)*nx] for j in range(nt)]
+           Xi,Tol,Losses =  TrainSGTRidge(R,X_grouped,lam=lam_1,num_tols=num_tols)
            xi = Xi[np.argmin(Losses)]
            tempX = np.hstack([tempR.dot(tempxi) for [tempR,tempxi] in zip(R,xi.T)])
            X     = np.reshape(tempX,(nx,nt))
-           #vX_grouped = [vectorX[j*nx:(j+1)*nx] for j in range(nt)]
+
         # update Lafrange multiplier Q and eta  
         Err = Ut - X - E2
         Y2 = Y2 + eta2 * Err
@@ -649,11 +652,14 @@ def DLrSR(R, Ut, lam_1 = 1e-5, lam_3 = 0.1, lam_4 = 1e-5, d_tol = 30):
            print('iteration:{0}, err:{1}, nc_norm:{2} eta2:{3}'.format(iter, err, nc_norm, eta2))
 
     if iter < start_num:
-        print("IALM Finished at iteration %d" % (iter))
-        vectorX = np.reshape(X,(nx*nt,1))
-        X_grouped = [vectorX[j*nx:(j+1)*nx] for j in range(nt)]
-        Xi,Tol,Losses =  TrainSGTRidge(R,X_grouped, lam=lam_1, num_tols=d_tol)
-        xi = Xi[np.argmin(Losses)]
+       print("IALM Finished at iteration %d" % (iter))
+       vectorX    = np.reshape(X,(nx*nt,1))
+       if by == 'location':
+           X_grouped = [vectorX[nx*np.arange(nt)+j] for j in range(nx)]
+       else:
+           X_grouped = [vectorX[j*nx:(j+1)*nx] for j in range(nt)]
+       Xi,Tol,Losses =  TrainSGTRidge(R,X_grouped,lam=lam_1,num_tols=num_tols)
+       xi = Xi[np.argmin(Losses)] 
 
     return xi, X, E2
 
