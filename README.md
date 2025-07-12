@@ -1,5 +1,5 @@
 # Parametric PDE discovery using UBIC 
-Using the uncertainty-penalized Bayesian information criterion (UBIC) originally proposed in [Adaptive Uncertainty-Penalized Model Selection for Data-Driven PDE Discovery](https://ieeexplore.ieee.org/document/10401233) to discover parametric PDEs automatically.
+Using the uncertainty-penalized Bayesian information criterion (UBIC) originally proposed in [Adaptive Uncertainty-Penalized Model Selection for Data-Driven PDE Discovery](https://ieeexplore.ieee.org/document/10401233) to discover parametric PDEs with variable coefficients automatically.
 
 - Please first install our modified pysindy package archived at [this OneDrive link](https://1drv.ms/u/c/39cecf604f8b30de/Ed4wi09gz84ggDl7AAAAAAABgZ89ebMdSRESd2a8jiF01w?e=6m0EXl) (Password: UBIC). The more updated version is avaiable at [this repository](https://github.com/Pongpisit-Thanasutives/pysindy).
 - To use the L0BnB best-subset solver, please install [the package](https://github.com/Pongpisit-Thanasutives/l0bnb).
